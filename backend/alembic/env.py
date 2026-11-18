@@ -5,7 +5,10 @@ from app.core.config import settings
 from app.db.base import Base
 from app.models.user import User  # noqa: F401 - register model metadata
 from app.models.complaint import Complaint  # noqa: F401 - register model metadata
+<<<<<<< HEAD
 from app.models.notification import Notification  # noqa: F401 - register model metadata
+=======
+>>>>>>> 0c4b4f0250554b1fa35b48a3453e45be6be0c369
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.database_url.replace("%", "%%"))
