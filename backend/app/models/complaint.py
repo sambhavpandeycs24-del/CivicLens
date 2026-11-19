@@ -1,8 +1,7 @@
 import enum
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import DateTime, Enum, Float, ForeignKey, String, Text, Index
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import DateTime, Enum, Float, ForeignKey, String, Text, Index, Uuid
 from sqlalchemy.orm import Mapped, mapped_column
 from app.db.base import Base
 
@@ -34,7 +33,7 @@ class Complaint(Base):
         Index("ix_complaints_status_created", "status", "created_at"),
         Index("ix_complaints_location", "latitude", "longitude"),
     )
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True).with_variant(String(36), "sqlite"), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
     tracking_code: Mapped[str] = mapped_column(String(20), unique=True, index=True, nullable=False)
     title: Mapped[str] = mapped_column(String(160), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=False)
@@ -46,7 +45,7 @@ class Complaint(Base):
     longitude: Mapped[float] = mapped_column(Float, nullable=False)
     image_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     resolution_note: Mapped[str | None] = mapped_column(Text, nullable=True)
-    reporter_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True).with_variant(String(36), "sqlite"), ForeignKey("users.id"), nullable=False, index=True)
-    assigned_to_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True).with_variant(String(36), "sqlite"), ForeignKey("users.id"), nullable=True, index=True)
+    reporter_id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True)
+    assigned_to_id: Mapped[uuid.UUID | None] = mapped_column(Uuid(as_uuid=True), ForeignKey("users.id"), nullable=True, index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)

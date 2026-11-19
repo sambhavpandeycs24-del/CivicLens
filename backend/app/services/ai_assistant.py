@@ -40,7 +40,7 @@ def priority_suggestion(title: str, description: str):
         return "urgent", 90, [f"Potential safety term detected: {term}" for term in urgent]
     if high:
         return "high", 70, [f"Potential impact term detected: {term}" for term in high]
-    if any(term in text for term in ("not working", "broken", "leak", "blocked")):
+    if any(term in text for term in ("not working", "leak", "blocked")):
         return "medium", 50, ["Issue-impact keyword detected; human review is recommended."]
     return "low", 25, ["No predefined high-risk terms detected; this does not prove the issue is low risk."]
 

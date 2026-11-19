@@ -7,10 +7,7 @@ from app.db.session import get_db
 from app.models.user import User, UserRole
 from app.models.complaint import Complaint, ComplaintStatus
 from app.schemas.complaint import ComplaintCreate, ComplaintPublic, ComplaintUpdate
-<<<<<<< HEAD
 from app.models.notification import Notification
-=======
->>>>>>> 0c4b4f0250554b1fa35b48a3453e45be6be0c369
 
 router = APIRouter(prefix="/complaints", tags=["Complaints"])
 
@@ -21,11 +18,8 @@ def _tracking_code():
 def create_complaint(payload: ComplaintCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     complaint = Complaint(**payload.model_dump(), reporter_id=user.id, tracking_code=_tracking_code())
     db.add(complaint)
-<<<<<<< HEAD
     db.flush()
     db.add(Notification(user_id=user.id, complaint_id=complaint.id, title="Complaint submitted", message=f"Your complaint {complaint.tracking_code} has been submitted successfully."))
-=======
->>>>>>> 0c4b4f0250554b1fa35b48a3453e45be6be0c369
     db.commit()
     db.refresh(complaint)
     return complaint
@@ -69,11 +63,8 @@ def update_complaint(
     if complaint is None:
         raise HTTPException(status_code=404, detail="Complaint not found")
     changes = payload.model_dump(exclude_unset=True)
-<<<<<<< HEAD
     old_status = complaint.status
     old_assignee = complaint.assigned_to_id
-=======
->>>>>>> 0c4b4f0250554b1fa35b48a3453e45be6be0c369
     if "assigned_to_id" in changes and changes["assigned_to_id"] is not None:
         assignee = db.get(User, changes["assigned_to_id"])
         if assignee is None or assignee.role != UserRole.AUTHORITY or not assignee.is_active:
@@ -84,7 +75,6 @@ def update_complaint(
         setattr(complaint, key, value)
     if complaint.assigned_to_id and complaint.status == ComplaintStatus.SUBMITTED:
         complaint.status = ComplaintStatus.ASSIGNED
-<<<<<<< HEAD
     db.flush()
     if complaint.status != old_status:
         db.add(Notification(user_id=complaint.reporter_id, complaint_id=complaint.id,
@@ -92,8 +82,6 @@ def update_complaint(
     if complaint.assigned_to_id and complaint.assigned_to_id != old_assignee:
         db.add(Notification(user_id=complaint.assigned_to_id, complaint_id=complaint.id,
             title="Complaint assigned to you", message=f"Complaint {complaint.tracking_code} has been assigned to you."))
-=======
->>>>>>> 0c4b4f0250554b1fa35b48a3453e45be6be0c369
     db.commit()
     db.refresh(complaint)
     return complaint

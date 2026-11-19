@@ -1,3 +1,4 @@
+from uuid import UUID
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
 from pwdlib import PasswordHash
@@ -16,10 +17,10 @@ def create_access_token(subject: str) -> str:
     payload = {"sub": subject, "exp": expires}
     return jwt.encode(payload, settings.jwt_secret_key, algorithm=settings.jwt_algorithm)
 
-def decode_access_token(token: str) -> str | None:
+def decode_access_token(token: str) -> UUID | None:
     try:
         payload = jwt.decode(token, settings.jwt_secret_key, algorithms=[settings.jwt_algorithm])
         subject = payload.get("sub")
-        return subject if isinstance(subject, str) else None
-    except JWTError:
+        return UUID(subject) if isinstance(subject, str) else None
+    except (JWTError, ValueError):
         return None

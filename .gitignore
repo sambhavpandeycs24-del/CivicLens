@@ -21,8 +21,4 @@ Thumbs.db
 
 # generated
 backend/app.db
-<<<<<<< HEAD
-
 .env
-=======
->>>>>>> 0c4b4f0250554b1fa35b48a3453e45be6be0c369

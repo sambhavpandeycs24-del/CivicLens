@@ -134,7 +134,6 @@ The backend test suite covers health, citizen registration, password non-disclos
 - JWT secret in `.env.example` is a placeholder. Generate a unique secret before running.
 - PostGIS is enabled in the Docker database image. The initial user schema does not store location. Spatial complaint geometry and indexes will be introduced alongside the Phase 2 complaint-location model.
 - Redis is provisioned now for later queues/caching; no background worker is enabled in Phase 1.
-<<<<<<< HEAD
 
 
 ## Phase 3 — AI assistance baseline
@@ -144,5 +143,8 @@ Phase 3 adds an authenticated `POST /api/v1/ai/analyze` endpoint for explainable
 ## Phase 4 — Location, Analytics and Notifications
 
 Phase 4 adds authorised complaint location endpoints, coordinate-cell heatmap data, database-backed civic analytics, and in-app notifications. New frontend pages are available at `/dashboard/analytics`, `/dashboard/map`, and `/dashboard/notifications`. See `docs/PHASE_4_LOCATION_ANALYTICS_NOTIFICATIONS.md` for endpoints, access rules, migration details and limitations.
-=======
->>>>>>> 0c4b4f0250554b1fa35b48a3453e45be6be0c369
+
+
+## Phase 5 — Production Readiness Baseline
+
+Added database readiness endpoint (`/health/ready`), baseline HTTP security headers, and health/security tests. See `docs/PHASE_5_PRODUCTION_READINESS.md` for verification and remaining deployment requirements.

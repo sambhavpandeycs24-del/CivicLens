@@ -1,3 +1,6 @@
+from app.core.security import create_access_token
+
+
 def register(client, email="citizen@example.com"):
     return client.post("/api/v1/auth/register", json={"full_name": "Test Citizen", "email": email, "password": "StrongPass123!"})
 
@@ -48,4 +51,9 @@ def test_role_gate_rejects_citizen(client):
 
 def test_profile_requires_authentication(client):
     response = client.get("/api/v1/users/me")
+    assert response.status_code == 401
+
+def test_profile_rejects_non_uuid_token_subject(client):
+    token = create_access_token("not-a-uuid")
+    response = client.get("/api/v1/users/me", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == 401
