@@ -31,6 +31,7 @@ class ComplaintPublic(BaseModel):
     latitude: float
     longitude: float
     image_url: str | None
+    image_storage_key: str | None = None
     resolution_note: str | None
     reporter_id: uuid.UUID
     assigned_to_id: uuid.UUID | None

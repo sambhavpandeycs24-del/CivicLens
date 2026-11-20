@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
@@ -29,6 +30,18 @@ export default function ReportPage() {
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail ?? "Could not submit complaint");
+      const image = formData.get("image");
+      if (image instanceof File && image.size > 0) {
+        const imageForm = new FormData();
+        imageForm.append("file", image);
+        const imageResponse = await fetch(`${API}/complaints/${data.id}/image`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: imageForm,
+        });
+        const imageData = await imageResponse.json();
+        if (!imageResponse.ok) throw new Error(imageData.detail ?? "Complaint created, but image upload failed");
+      }
       setMessage(`Complaint submitted. Tracking ID: ${data.tracking_code}`);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Something went wrong");
@@ -39,7 +52,7 @@ export default function ReportPage() {
 
   return <main className="min-h-screen bg-[#f6f8f5] px-6 py-12 text-[#17372b]">
     <div className="mx-auto max-w-2xl">
-      <a href="/" className="text-sm font-semibold text-[#176b4b]">← CivicLens AI</a>
+      <Link href="/" className="text-sm font-semibold text-[#176b4b]">← CivicLens AI</Link>
       <h1 className="mt-8 text-4xl font-bold">Report a civic issue</h1>
       <p className="mt-3 text-[#64756e]">Provide accurate details so the responsible civic team can investigate.</p>
       <form action={submit} className="mt-8 grid gap-5 rounded-3xl border border-[#e0e9e2] bg-white p-7 shadow-sm">
@@ -51,6 +64,7 @@ export default function ReportPage() {
           <label className="grid gap-2 text-sm font-semibold">Latitude<input name="latitude" type="number" step="any" min="-90" max="90" required className="rounded-xl border p-3 font-normal" /></label>
           <label className="grid gap-2 text-sm font-semibold">Longitude<input name="longitude" type="number" step="any" min="-180" max="180" required className="rounded-xl border p-3 font-normal" /></label>
         </div>
+        <label className="grid gap-2 text-sm font-semibold">Optional image<input name="image" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" className="rounded-xl border p-3 font-normal" /></label>
         <button disabled={busy} className="rounded-full bg-[#176b4b] px-6 py-3 font-semibold text-white disabled:opacity-60">{busy ? "Submitting..." : "Submit complaint"}</button>
         {message && <p role="status" className="rounded-xl bg-[#edf5ef] p-4 text-sm">{message}</p>}
       </form>

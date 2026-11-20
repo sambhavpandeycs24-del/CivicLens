@@ -148,3 +148,7 @@ Phase 4 adds authorised complaint location endpoints, coordinate-cell heatmap da
 ## Phase 5 — Production Readiness Baseline
 
 Added database readiness endpoint (`/health/ready`), baseline HTTP security headers, and health/security tests. See `docs/PHASE_5_PRODUCTION_READINESS.md` for verification and remaining deployment requirements.
+
+## Phase 6 — Advanced Features and Real-World Integration
+
+Phase 6 adds signature-validated complaint image uploads, improved advisory AI priority/category suggestions, conservative duplicate detection, authenticated notification WebSockets, and an authority workflow dashboard with filters. See `docs/PHASE_6_ADVANCED_FEATURES.md` for API details, migration `0004_add_complaint_image_storage`, environment variables, testing, and limitations.

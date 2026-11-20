@@ -33,6 +33,8 @@ services:
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
     ports:
       - "8000:8000"
+    volumes:
+      - complaint_uploads:/app/complaint_uploads
     depends_on:
       db:
         condition: service_healthy
@@ -50,3 +52,4 @@ services:
 
 volumes:
   postgres_data:
+  complaint_uploads:

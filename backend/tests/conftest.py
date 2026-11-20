@@ -12,6 +12,7 @@ from app.db.session import get_db
 from app.main import app
 from app.models.user import User  # noqa: F401
 from app.models.complaint import Complaint  # noqa: F401
+from app.models.notification import Notification  # noqa: F401
 
 engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
 TestingSessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)

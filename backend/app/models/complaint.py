@@ -44,6 +44,7 @@ class Complaint(Base):
     latitude: Mapped[float] = mapped_column(Float, nullable=False)
     longitude: Mapped[float] = mapped_column(Float, nullable=False)
     image_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    image_storage_key: Mapped[str | None] = mapped_column(String(255), nullable=True)
     resolution_note: Mapped[str | None] = mapped_column(Text, nullable=True)
     reporter_id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True)
     assigned_to_id: Mapped[uuid.UUID | None] = mapped_column(Uuid(as_uuid=True), ForeignKey("users.id"), nullable=True, index=True)
