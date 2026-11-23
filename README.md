@@ -1,6 +1,6 @@
-# CivicLens AI — Phase 1 Foundation
+# CivicLens AI — Civic Issue Reporting and Intelligence
 
-A modular foundation for an AI-assisted civic issue reporting and resolution platform. Phase 1 establishes the application structure, authentication, role-based access control, database baseline, API documentation, local containers, and automated backend tests.
+A modular civic issue reporting and resolution platform built with Next.js, FastAPI, PostgreSQL/PostGIS, SQLAlchemy, Alembic, Redis, and Docker Compose. Phases 1–7 provide authentication, complaint workflows, advisory AI, maps and analytics, notifications, image uploads, authority tools, and advanced civic intelligence.
 
 ## Phase 1 boundaries
 
@@ -27,7 +27,7 @@ The backend is a modular monolith. Keep business logic in services and route han
 ## Repository structure
 
 ```text
-CivicLensAI_Phase1/
+CivicLens/
 ├── backend/
 │   ├── app/
 │   │   ├── api/v1/endpoints/
@@ -126,13 +126,13 @@ Use the returned access token as `Authorization: Bearer <token>` for `GET /api/v
 
 ## Test status
 
-The backend test suite covers health, citizen registration, password non-disclosure, login, authenticated profile access, duplicate-email rejection, and role-protected access. Run `pytest -q` from `backend/`.
+The backend tests cover authentication, complaint workflows, AI behavior, uploads, notifications, and Phase 7 intelligence. Run `pytest -q` from `backend/`; frontend checks are `npm run lint` and `npm run build` from `frontend/`.
 
 ## Important implementation notes
 
 - This is a development scaffold, not a production-ready deployment. Before public launch add email verification, password reset, rate limiting, refresh-token rotation/revocation, audit logging, secrets management, backups, and security review.
 - JWT secret in `.env.example` is a placeholder. Generate a unique secret before running.
-- PostGIS is enabled in the Docker database image. The initial user schema does not store location. Spatial complaint geometry and indexes will be introduced alongside the Phase 2 complaint-location model.
+- PostGIS is enabled in the Docker database image. Complaint locations are stored as latitude/longitude values; the Phase 7 hotspot query derives PostGIS points for analysis without altering existing complaint data.
 - Redis is provisioned now for later queues/caching; no background worker is enabled in Phase 1.
 
 
@@ -152,3 +152,36 @@ Added database readiness endpoint (`/health/ready`), baseline HTTP security head
 ## Phase 6 — Advanced Features and Real-World Integration
 
 Phase 6 adds signature-validated complaint image uploads, improved advisory AI priority/category suggestions, conservative duplicate detection, authenticated notification WebSockets, and an authority workflow dashboard with filters. See `docs/PHASE_6_ADVANCED_FEATURES.md` for API details, migration `0004_add_complaint_image_storage`, environment variables, testing, and limitations.
+
+## Phase 7 — Advanced AI and Smart Civic Intelligence
+
+Phase 7 adds an optional TF-IDF/logistic complaint classifier, deterministic complaint briefs, PostGIS category/week hotspots, SLA risk baselines, department performance metrics, and responsive AI/map/analytics dashboards. Everything is advisory; status and priority are not automatically changed.
+
+### Model and data limitations
+
+No labeled complaint dataset is included in this repository, so no trained model or real-world accuracy metric is currently available. The existing rules classifier remains the default until enough real, labeled complaints are present and operators train the local model. Training requires at least 30 reports and four examples per category. See [docs/PHASE_7_AI_INTELLIGENCE.md](docs/PHASE_7_AI_INTELLIGENCE.md) for the evaluation method, safe JSON artifact format, and full limitations.
+
+### Phase 7 setup
+
+Continue using the existing Compose setup and data volumes:
+
+```powershell
+docker compose up --build
+```
+
+Migration `0005_phase7_intelligence` is applied by the backend container startup. Optional SLA targets are configured with `SLA_TARGET_HOURS_JSON` (defaults: urgent 24h, high 72h, medium 168h, low 336h). Set optional category overrides as JSON, e.g. `{"priority:urgent":24,"pothole:high":48}`. Do not replace or delete existing Docker volumes. Train the model from `backend/` with `python -m app.services.train_classifier`; the Compose `category_models` volume persists its JSON artifact.
+
+### Phase 7 API quick reference
+
+All endpoints are under `/api/v1` and documented in FastAPI OpenAPI at `/docs`.
+
+| Method | Endpoint | Access |
+| --- | --- | --- |
+| `POST` | `/ai/analyze` | Authenticated; ML when available, rules fallback otherwise |
+| `POST` | `/ai/summarize` | Authenticated; deterministic local summary |
+| `GET` | `/geo/hotspots?days=30&radius_meters=500&min_complaints=2` | Authority/Admin |
+| `GET` | `/analytics/sla` | Authority/Admin |
+| `GET` | `/analytics/departments` | Authority/Admin |
+| `PATCH` | `/admin/users/{user_id}/department` | Admin |
+
+The database stores coordinates as numeric latitude/longitude, not a PostGIS geometry column; PostgreSQL derives geometry for clustering at query time. Department reporting requires Admin assignment to Authority users. Resolution-time reporting starts with timestamps recorded after migration 0005; older resolved rows are not assigned fabricated durations. Full request behavior and setup details are in [docs/PHASE_7_AI_INTELLIGENCE.md](docs/PHASE_7_AI_INTELLIGENCE.md).

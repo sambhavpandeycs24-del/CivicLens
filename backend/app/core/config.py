@@ -10,6 +10,11 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:3000"
     complaint_upload_dir: str = "./complaint_uploads"
     complaint_upload_max_bytes: int = 5 * 1024 * 1024
+    category_model_path: str = "data/complaint_category_model.json"
+    sla_target_hours_json: str = (
+        '{"priority:urgent":24,"priority:high":72,"priority:medium":168,'
+        '"priority:low":336}'
+    )
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     @property

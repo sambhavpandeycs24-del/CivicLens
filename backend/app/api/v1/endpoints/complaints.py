@@ -1,6 +1,7 @@
 import secrets
 import uuid
 from pathlib import Path
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, status
 from fastapi.responses import FileResponse, RedirectResponse
@@ -131,6 +132,11 @@ async def update_complaint(
         raise HTTPException(status_code=422, detail="Resolution note is required to resolve a complaint")
     for key, value in changes.items():
         setattr(complaint, key, value)
+    if "status" in changes:
+        if complaint.status == ComplaintStatus.RESOLVED and old_status != ComplaintStatus.RESOLVED:
+            complaint.resolved_at = datetime.now(timezone.utc)
+        elif old_status == ComplaintStatus.RESOLVED and complaint.status != ComplaintStatus.RESOLVED:
+            complaint.resolved_at = None
     if complaint.assigned_to_id and complaint.status == ComplaintStatus.SUBMITTED:
         complaint.status = ComplaintStatus.ASSIGNED
     db.flush()

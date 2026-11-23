@@ -14,8 +14,12 @@ class UserPublic(BaseModel):
     full_name: str
     email: EmailStr
     role: UserRole
+    department: str | None = None
     is_active: bool
     created_at: datetime
+
+class DepartmentUpdate(BaseModel):
+    department: str | None = Field(default=None, max_length=120)
 
 class Token(BaseModel):
     access_token: str
