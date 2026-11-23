@@ -185,3 +185,9 @@ All endpoints are under `/api/v1` and documented in FastAPI OpenAPI at `/docs`.
 | `PATCH` | `/admin/users/{user_id}/department` | Admin |
 
 The database stores coordinates as numeric latitude/longitude, not a PostGIS geometry column; PostgreSQL derives geometry for clustering at query time. Department reporting requires Admin assignment to Authority users. Resolution-time reporting starts with timestamps recorded after migration 0005; older resolved rows are not assigned fabricated durations. Full request behavior and setup details are in [docs/PHASE_7_AI_INTELLIGENCE.md](docs/PHASE_7_AI_INTELLIGENCE.md).
+
+## Phase 8 — Production Deployment
+
+Phase 8 adds a production Compose topology, HTTPS-ready Nginx reverse proxy, restart and health policies, persistent storage settings, structured JSON request logs, secret/CORS validation, in-process rate limiting, citizen auth/report/track screens, and database backup/restore scripts.
+
+Start with [docs/PHASE_8_PRODUCTION_DEPLOYMENT.md](docs/PHASE_8_PRODUCTION_DEPLOYMENT.md) for environment setup, TLS, migration, backup, restore, monitoring, and limitations. Copy `.env.production.example` to `.env.production`; never commit that file. Keep PostgreSQL and persistent volumes intact during normal deployments.

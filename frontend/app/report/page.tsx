@@ -14,7 +14,7 @@ export default function ReportPage() {
     setMessage("");
     try {
       const token = window.localStorage.getItem("civiclens_access_token");
-      if (!token) throw new Error("Please log in first. Authentication UI is scheduled for the next frontend iteration.");
+      if (!token) throw new Error("Please sign in or register before submitting a complaint.");
       const payload = {
         title: String(formData.get("title") ?? ""),
         description: String(formData.get("description") ?? ""),

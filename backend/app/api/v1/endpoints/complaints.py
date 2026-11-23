@@ -15,6 +15,7 @@ from app.models.complaint import Complaint, ComplaintStatus, ComplaintCategory, 
 from app.schemas.complaint import ComplaintCreate, ComplaintPublic, ComplaintUpdate
 from app.models.notification import Notification
 from app.services.connection_manager import connection_manager
+from app.services.storage import presigned_s3_url, save_s3, storage_is_s3
 from app.services.ai_assistant import find_duplicates
 
 router = APIRouter(prefix="/complaints", tags=["Complaints"])
@@ -61,6 +62,10 @@ def _validate_image_signature(content_type: str | None, filename: str | None, fi
 
 def _tracking_code():
     return "CL-" + secrets.token_hex(4).upper()
+
+
+def canonical_extension_to_mime(extension: str) -> str:
+    return {"jpg": "image/jpeg", "png": "image/png", "webp": "image/webp"}[extension]
 
 @router.post("", response_model=ComplaintPublic, status_code=status.HTTP_201_CREATED)
 async def create_complaint(payload: ComplaintCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
@@ -205,7 +210,35 @@ async def upload_complaint_image(
         raise HTTPException(status_code=403, detail="You cannot upload an image for this complaint")
 
     first_bytes = await file.read(12)
-    extension, canonical_extension = _validate_image_signature(file.content_type, file.filename, first_bytes)
+    _, canonical_extension = _validate_image_signature(file.content_type, file.filename, first_bytes)
+    if storage_is_s3():
+        content = first_bytes
+        size = len(content)
+        try:
+            while chunk := await file.read(1024 * 1024):
+                size += len(chunk)
+                if size > settings.complaint_upload_max_bytes:
+                    raise HTTPException(
+                        status_code=413,
+                        detail=f"Image exceeds the maximum allowed size of {settings.complaint_upload_max_bytes} bytes",
+                    )
+                content += chunk
+        except HTTPException:
+            raise
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail="Could not store uploaded image") from exc
+        if size == 0:
+            raise HTTPException(status_code=400, detail="Uploaded file is empty")
+        storage_key = f"{uuid.uuid4().hex}.{canonical_extension}"
+        try:
+            save_s3(storage_key, content, canonical_extension_to_mime(canonical_extension))
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail="Could not store uploaded image") from exc
+        complaint.image_storage_key = storage_key
+        db.commit()
+        db.refresh(complaint)
+        return complaint
+
     storage_dir = Path(settings.complaint_upload_dir).resolve()
     storage_dir.mkdir(parents=True, exist_ok=True)
     storage_key = f"{uuid.uuid4().hex}.{canonical_extension}"
@@ -257,6 +290,11 @@ def get_complaint_image(
         raise HTTPException(status_code=403, detail="You cannot view this complaint image")
 
     if complaint.image_storage_key:
+        if storage_is_s3():
+            try:
+                return RedirectResponse(url=presigned_s3_url(complaint.image_storage_key), status_code=307)
+            except Exception as exc:
+                raise HTTPException(status_code=500, detail="Could not access uploaded image") from exc
         storage_dir = Path(settings.complaint_upload_dir).resolve()
         key_path = Path(complaint.image_storage_key)
         if key_path.name != complaint.image_storage_key:

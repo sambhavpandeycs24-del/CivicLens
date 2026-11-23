@@ -6,6 +6,9 @@ venv/
 .pytest_cache/
 .coverage
 .env
+.env.production
+deploy/certs/
+backups/
 
 # Node
 node_modules/
