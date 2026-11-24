@@ -69,6 +69,8 @@ CivicLens/
 docker compose up --build
 ```
 
+The Compose build passes `NEXT_PUBLIC_API_URL` into Next.js at build time. Rebuild the frontend after changing this value.
+
 4. Open the frontend at http://localhost:3000 and API docs at http://localhost:8000/docs.
 5. Health endpoint: http://localhost:8000/health.
 

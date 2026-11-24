@@ -15,6 +15,7 @@ FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV HOSTNAME=0.0.0.0
 RUN addgroup --system --gid 10001 civiclens && adduser --system --uid 10001 --ingroup civiclens civiclens
 COPY --from=builder --chown=civiclens:civiclens /app/public ./public
 COPY --from=builder --chown=civiclens:civiclens /app/.next/standalone ./
